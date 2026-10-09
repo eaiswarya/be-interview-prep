@@ -1,10 +1,13 @@
 package com.bemock.prep;
 
 import com.bemock.prep.dto.TaskResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -23,6 +26,18 @@ class TaskApiIntegrationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
+    @BeforeEach
+    void authenticate() {
+        restTemplate = AuthTestSupport.withToken(restTemplateBuilder, port,
+                AuthTestSupport.registerAndLogin(restTemplate));
+    }
 
     @Test
     void taskLifecycle() {

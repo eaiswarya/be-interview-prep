@@ -4,10 +4,12 @@ import com.bemock.prep.dto.ShortUrlResponse;
 import com.bemock.prep.dto.UrlStatsResponse;
 import com.bemock.prep.model.ShortUrl;
 import com.bemock.prep.repository.ShortUrlRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
@@ -37,6 +39,15 @@ class UrlShortenerIntegrationTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private RestTemplateBuilder restTemplateBuilder;
+
+    @BeforeEach
+    void authenticate() {
+        restTemplate = AuthTestSupport.withToken(restTemplateBuilder, port,
+                AuthTestSupport.registerAndLogin(restTemplate));
+    }
 
     @Autowired
     private ShortUrlRepository shortUrlRepository;
