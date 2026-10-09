@@ -1,0 +1,4 @@
+# Test-only overrides (test classpath only, never packaged). Not a real secret.
+app:
+  jwt:
+    secret: test-only-signing-key-not-used-outside-tests-0123456789
