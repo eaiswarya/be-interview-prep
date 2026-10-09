@@ -1,6 +1,7 @@
 package com.bemock.prep.exception;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -52,6 +54,16 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.timestamp").exists())
                 .andExpect(jsonPath("$.fieldErrors", hasSize(2)))
                 .andExpect(jsonPath("$.fieldErrors[*].field", containsInAnyOrder("title", "quantity")));
+    }
+
+    @Test
+    void invalidRequestParamReturns400WithFieldErrors() throws Exception {
+        mockMvc.perform(get("/test/search").param("limit", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors", hasSize(1)))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("limit"));
     }
 
     @Test
@@ -122,6 +134,11 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/items/{id}")
         String get(@PathVariable Long id) {
             throw new ResourceNotFoundException("Item", id);
+        }
+
+        @GetMapping("/search")
+        String search(@RequestParam @Min(1) int limit) {
+            return "ok";
         }
 
         @GetMapping("/conflict")
