@@ -21,6 +21,11 @@ spring:
     locations: classpath:db/migration
   jackson:
     time-zone: UTC
+  data:
+    web:
+      pageable:
+        # Larger requested page sizes are capped to this.
+        max-page-size: 100
 
 management:
   endpoints:
