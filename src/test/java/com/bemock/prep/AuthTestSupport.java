@@ -13,6 +13,10 @@ public final class AuthTestSupport {
 
     public static final String PASSWORD = "password123";
 
+    /** Matches app.admin.* in src/test/resources/config/application.yml. */
+    private static final String ADMIN_EMAIL = "admin@test.local";
+    private static final String ADMIN_PASSWORD = "admin-password-123";
+
     private AuthTestSupport() {
     }
 
@@ -20,6 +24,10 @@ public final class AuthTestSupport {
         String email = "user-" + UUID.randomUUID() + "@example.com";
         anonymous.postForEntity("/api/auth/register", Map.of("email", email, "password", PASSWORD), Map.class);
         return login(anonymous, email, PASSWORD);
+    }
+
+    public static String adminLogin(TestRestTemplate anonymous) {
+        return login(anonymous, ADMIN_EMAIL, ADMIN_PASSWORD);
     }
 
     public static String login(TestRestTemplate anonymous, String email, String password) {
