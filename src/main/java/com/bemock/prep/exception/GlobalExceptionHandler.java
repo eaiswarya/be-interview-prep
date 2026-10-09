@@ -2,6 +2,7 @@ package com.bemock.prep.exception;
 
 import com.bemock.prep.dto.ApiErrorResponse;
 import com.bemock.prep.dto.ApiErrorResponse.FieldErrorResponse;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
@@ -22,6 +23,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -89,6 +91,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatusCode status,
                                                                   WebRequest request) {
+        if (ex.getCause() instanceof InvalidFormatException invalid && !invalid.getPath().isEmpty()) {
+            FieldErrorResponse fieldError = new FieldErrorResponse(fieldPath(invalid), invalidValueMessage(invalid));
+            return toObject(build(HttpStatus.BAD_REQUEST, "Validation failed", request, List.of(fieldError)));
+        }
         return toObject(build(HttpStatus.BAD_REQUEST, "Malformed request body", request, List.of()));
     }
 
@@ -135,6 +141,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return request instanceof ServletWebRequest servletRequest
                 ? servletRequest.getRequest().getRequestURI()
                 : request.getDescription(false);
+    }
+
+    private static String fieldPath(InvalidFormatException ex) {
+        return ex.getPath().stream()
+                .map(ref -> ref.getFieldName() != null ? ref.getFieldName() : "[" + ref.getIndex() + "]")
+                .reduce((a, b) -> b.startsWith("[") ? a + b : a + "." + b)
+                .orElse("body");
+    }
+
+    private static String invalidValueMessage(InvalidFormatException ex) {
+        Class<?> type = ex.getTargetType();
+        return type != null && type.isEnum()
+                ? "must be one of " + Arrays.toString(type.getEnumConstants())
+                : "has invalid value '%s'".formatted(ex.getValue());
     }
 
     private static String lastPathNode(String propertyPath) {
