@@ -11,10 +11,12 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.method.ParameterErrors;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -38,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return build(ex.getStatus(), ex.getMessage(), request, List.of());
     }
 
-    /** Violations on {@code @Validated} path/query parameters. */
+    /** Violations raised by {@code @Validated} beans outside Spring MVC's built-in method validation. */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
                                                                       WebRequest request) {
@@ -61,6 +63,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
         List<FieldErrorResponse> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> new FieldErrorResponse(fe.getField(), fe.getDefaultMessage()))
+                .toList();
+        return toObject(build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors));
+    }
+
+    /** Constraint violations on {@code @RequestParam} / {@code @PathVariable} / {@code @RequestHeader} arguments. */
+    @Override
+    protected ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException ex,
+                                                                            HttpHeaders headers,
+                                                                            HttpStatusCode status,
+                                                                            WebRequest request) {
+        List<FieldErrorResponse> fieldErrors = ex.getAllValidationResults().stream()
+                .flatMap(result -> result instanceof ParameterErrors errors
+                        ? errors.getFieldErrors().stream()
+                                .map(fe -> new FieldErrorResponse(fe.getField(), fe.getDefaultMessage()))
+                        : result.getResolvableErrors().stream()
+                                .map(error -> new FieldErrorResponse(
+                                        result.getMethodParameter().getParameterName(), error.getDefaultMessage())))
                 .toList();
         return toObject(build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors));
     }
