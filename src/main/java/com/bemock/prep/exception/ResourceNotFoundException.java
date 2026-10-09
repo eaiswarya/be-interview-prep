@@ -2,7 +2,6 @@ package com.bemock.prep.exception;
 
 import org.springframework.http.HttpStatus;
 
-/** Thrown when a requested entity does not exist. Maps to 404. */
 public class ResourceNotFoundException extends ApiException {
 
     public ResourceNotFoundException(String resource, Object id) {
