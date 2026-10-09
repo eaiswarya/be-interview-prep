@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,6 +51,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(v -> new FieldErrorResponse(lastPathNode(v.getPropertyPath().toString()), v.getMessage()))
                 .toList();
         return build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors);
+    }
+
+    /** A DB constraint rejected the change, e.g. deleting a product that orders still reference. */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
+        log.warn("Data integrity violation on {}: {}", path(request), ex.getMostSpecificCause().getMessage());
+        return build(HttpStatus.CONFLICT, "Request conflicts with existing data", request, List.of());
     }
 
     /** Sorting by a field that doesn't exist, e.g. {@code ?sort=nope}. */
