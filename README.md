@@ -12,7 +12,7 @@ Product requirements, architecture and per-feature design: [`docs/PRODUCT.md`](d
 | 2 | URL Shortener | [#10](https://github.com/eaiswarya/be-interview-prep/pull/10) |
 | 3 | Authentication & Roles | [#12](https://github.com/eaiswarya/be-interview-prep/pull/12) |
 | 4 | Product Catalog | [#14](https://github.com/eaiswarya/be-interview-prep/pull/14) |
-| 5 | Order Service | |
+| 5 | Order Service | [#16](https://github.com/eaiswarya/be-interview-prep/pull/16) |
 
 Video:
 
