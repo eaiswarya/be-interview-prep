@@ -5,7 +5,7 @@
 | **Status** | Draft v1 |
 | **Date** | 2026-10-09 |
 | **Source** | *Backend Interview Prep Assignment (Java / Spring Boot)* |
-| **Repo** | `eaiswarya/be-mock-prep` |
+| **Repo** | `eaiswarya/be-interview-prep` |
 
 ---
 

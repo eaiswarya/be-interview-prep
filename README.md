@@ -1,4 +1,4 @@
-# be-mock-prep
+# be-interview-prep
 
 Backend interview prep: five Spring Boot features (Task API, URL shortener, auth & roles, product catalog, order service) built on one layered code base with PostgreSQL.
 

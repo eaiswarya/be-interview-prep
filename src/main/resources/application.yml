@@ -1,6 +1,6 @@
 spring:
   application:
-    name: be-mock-prep
+    name: be-interview-prep
   config:
     # Local developer overrides (gitignored). Real environments use env vars.
     import: optional:file:.env[.properties]

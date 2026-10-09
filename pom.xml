@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>com.bemock</groupId>
-    <artifactId>be-mock-prep</artifactId>
+    <artifactId>be-interview-prep</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>be-mock-prep</name>
+    <name>be-interview-prep</name>
     <description>Backend interview prep: Spring Boot REST services on PostgreSQL</description>
 
     <properties>
