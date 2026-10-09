@@ -20,6 +20,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = "items")
     Optional<Order> findWithLockByIdAndUserId(Long id, Long userId);
-
-    long countByIdempotencyKey(String idempotencyKey);
 }

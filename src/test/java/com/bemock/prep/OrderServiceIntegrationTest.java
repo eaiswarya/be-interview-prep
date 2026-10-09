@@ -2,7 +2,6 @@ package com.bemock.prep;
 
 import com.bemock.prep.dto.OrderResponse;
 import com.bemock.prep.model.Product;
-import com.bemock.prep.repository.OrderRepository;
 import com.bemock.prep.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ class OrderServiceIntegrationTest {
     private ProductRepository productRepository;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private JdbcTemplate jdbcTemplate;
 
     @LocalServerPort
     private int port;
@@ -94,7 +94,7 @@ class OrderServiceIntegrationTest {
         assertThat(first.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(retry.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(retry.getBody().get("id")).isEqualTo(first.getBody().get("id"));
-        assertThat(orderRepository.countByIdempotencyKey(key)).isEqualTo(1);
+        assertThat(ordersWithKey(key)).isEqualTo(1);
         assertThat(stockOf(productId)).isEqualTo(3);
     }
 
@@ -122,7 +122,7 @@ class OrderServiceIntegrationTest {
         pool.shutdown();
 
         assertThat(orderIds).containsOnly(orderIds.getFirst());
-        assertThat(orderRepository.countByIdempotencyKey(key)).isEqualTo(1);
+        assertThat(ordersWithKey(key)).isEqualTo(1);
         assertThat(stockOf(productId)).isEqualTo(99);
     }
 
@@ -204,6 +204,11 @@ class OrderServiceIntegrationTest {
         Product product = productRepository.findById(productId).orElseThrow();
         product.setStock(stock);
         productRepository.save(product);
+    }
+
+    private long ordersWithKey(String idempotencyKey) {
+        return jdbcTemplate.queryForObject("SELECT count(*) FROM orders WHERE idempotency_key = ?",
+                Long.class, idempotencyKey);
     }
 
     private int stockOf(long productId) {
