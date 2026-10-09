@@ -2,3 +2,7 @@
 app:
   jwt:
     secret: test-only-signing-key-not-used-outside-tests-0123456789
+  # Bootstrap admin for tests (created by AdminInitializer at startup).
+  admin:
+    email: admin@test.local
+    password: admin-password-123

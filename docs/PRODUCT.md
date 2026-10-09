@@ -187,9 +187,9 @@ Every error response has this shape, whatever the cause:
 |---|---|---|
 | GET | `/api/products?category=&minPrice=&maxPrice=&inStock=&q=&page=&size=&sort=price,desc` | All filters optional and combinable (JPA `Specification`); response has `content, page, size, totalElements, totalPages`; `size` capped at 100 |
 | GET | `/api/products/{id}` | Cached |
-| POST / PUT / DELETE | `/api/products[/{id}]` | Evict or update the cache entry |
+| PUT / DELETE | `/api/products/{id}` | ADMIN only; evict the cache entry after commit |
 
-**Caching:** Spring Cache with `@Cacheable("products")` on lookup and `@CachePut` / `@CacheEvict` on write, so updated or deleted products are never served stale. To show it works: a test with SQL statement counting (or `@SpyBean` on the repository) proves the second lookup does not hit the DB. Sort fields are whitelisted to prevent invalid-property errors. Indexes go on `category`, `price`, and `name` (trigram index optional).
+**Caching:** Spring Cache + Caffeine. `@Cacheable("products")` on lookup and `@CacheEvict` on update/delete, applied after the transaction commits (`TransactionAwareCacheManagerProxy`), so updated or deleted products are never served stale. A test spies on the repository and proves the second lookup does not hit the DB. Sorting accepts any entity field; an unknown field returns 400. Indexes on `category`, `price`, and a trigram index on `lower(name)`.
 
 **Acceptance:** any filter combination works in one request; repeated lookups skip the DB, and this can be demonstrated; ≥ 1 automated test.
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .map(v -> new FieldErrorResponse(lastPathNode(v.getPropertyPath().toString()), v.getMessage()))
                 .toList();
         return build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors);
+    }
+
+    /** Sorting by a field that doesn't exist, e.g. {@code ?sort=nope}. */
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ApiErrorResponse> handleUnknownProperty(PropertyReferenceException ex, WebRequest request) {
+        return build(HttpStatus.BAD_REQUEST, "Cannot sort by '%s'".formatted(ex.getPropertyName()), request, List.of());
     }
 
     @ExceptionHandler(Exception.class)
