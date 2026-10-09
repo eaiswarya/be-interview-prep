@@ -11,7 +11,7 @@ Product requirements, architecture and per-feature design: [`docs/PRODUCT.md`](d
 | 1 | Task Manager API | [#8](https://github.com/eaiswarya/be-interview-prep/pull/8) |
 | 2 | URL Shortener | [#10](https://github.com/eaiswarya/be-interview-prep/pull/10) |
 | 3 | Authentication & Roles | [#12](https://github.com/eaiswarya/be-interview-prep/pull/12) |
-| 4 | Product Catalog | |
+| 4 | Product Catalog | [#14](https://github.com/eaiswarya/be-interview-prep/pull/14) |
 | 5 | Order Service | |
 
 Video:
