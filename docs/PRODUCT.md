@@ -152,7 +152,7 @@ Every error response has this shape, whatever the cause:
 
 **Decisions to make and defend**
 - **Code generation:** Base62 encoding of a sequence id (short, collision-free) vs. random Base62 with a retry on unique-constraint violation (not guessable). Either way, a DB unique index is the final guarantee.
-- **Same URL twice:** return the existing code (idempotent, saves space) **or** a new code each time (separate stats per link). The decision has to be written down. Recommended default: reuse the code when the URL and expiry match.
+- **Same URL twice:** return the existing code (idempotent, saves space) **or** a new code each time (separate stats per link). The decision has to be written down. **Chosen:** a new code every time, so each link has its own expiry and stats and creation needs no lookup or race handling.
 - **Accurate counts under load:** one atomic `UPDATE short_url SET visit_count = visit_count + 1 WHERE code = ?`, not read-modify-write in Java.
 
 **Acceptance:** duplicate-shorten behaviour is explained; concurrent visit test shows an exact count; ≥ 1 automated test.
