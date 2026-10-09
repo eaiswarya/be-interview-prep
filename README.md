@@ -8,7 +8,7 @@ Product requirements, architecture and per-feature design: [`docs/PRODUCT.md`](d
 
 | # | Question | PR link |
 |---|----------|---------|
-| 1 | Task Manager API | |
+| 1 | Task Manager API | [#8](https://github.com/eaiswarya/be-interview-prep/pull/8) |
 | 2 | URL Shortener | |
 | 3 | Authentication & Roles | |
 | 4 | Product Catalog | |
