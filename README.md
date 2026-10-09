@@ -10,7 +10,7 @@ Product requirements, architecture and per-feature design: [`docs/PRODUCT.md`](d
 |---|----------|---------|
 | 1 | Task Manager API | [#8](https://github.com/eaiswarya/be-interview-prep/pull/8) |
 | 2 | URL Shortener | [#10](https://github.com/eaiswarya/be-interview-prep/pull/10) |
-| 3 | Authentication & Roles | |
+| 3 | Authentication & Roles | [#12](https://github.com/eaiswarya/be-interview-prep/pull/12) |
 | 4 | Product Catalog | |
 | 5 | Order Service | |
 
@@ -45,6 +45,16 @@ Configuration comes from environment variables (or the gitignored `.env`):
 | `DB_USERNAME` | `bemock` | DB user |
 | `DB_PASSWORD` | *(none)* | DB password |
 | `DB_PORT` | `5432` | Host port docker compose publishes (if 5432 is taken, change it and `DB_URL`) |
+| `JWT_SECRET` | *(none, required)* | JWT signing key, at least 32 bytes (e.g. `openssl rand -base64 48`) |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | *(none)* | Optional bootstrap ADMIN created at startup |
+
+**Authentication:** every API endpoint except register, login, health and the short-link redirect needs a bearer token:
+
+```bash
+curl -X POST localhost:8080/api/auth/register -H 'Content-Type: application/json' -d '{"email":"me@example.com","password":"password123"}'
+TOKEN=$(curl -s -X POST localhost:8080/api/auth/login -H 'Content-Type: application/json' -d '{"email":"me@example.com","password":"password123"}' | jq -r .accessToken)
+curl localhost:8080/api/users/me -H "Authorization: Bearer $TOKEN"
+```
 
 **No local database?** Run `TestBeMockPrepApplication` from `src/test/java`. It starts the app against a throwaway PostgreSQL container (Testcontainers).
 

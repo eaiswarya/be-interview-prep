@@ -22,7 +22,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 
@@ -128,9 +127,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ApiErrorResponse body(HttpStatusCode status, String message, WebRequest request,
                                   List<FieldErrorResponse> fieldErrors) {
-        HttpStatus resolved = HttpStatus.resolve(status.value());
-        String reason = resolved != null ? resolved.getReasonPhrase() : String.valueOf(status.value());
-        return new ApiErrorResponse(Instant.now(), status.value(), reason, message, path(request), fieldErrors);
+        return ApiErrorResponse.of(status, message, path(request), fieldErrors);
     }
 
     private static ResponseEntity<Object> toObject(ResponseEntity<ApiErrorResponse> response) {

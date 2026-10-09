@@ -27,3 +27,13 @@ management:
     web:
       exposure:
         include: health,info
+
+app:
+  jwt:
+    # Required, at least 32 bytes. Never commit a real value.
+    secret: ${JWT_SECRET:}
+    ttl: 15m
+  admin:
+    # Optional bootstrap admin, created at startup if both are set.
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
