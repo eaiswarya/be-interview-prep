@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
@@ -37,9 +36,6 @@ class AuthIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtDecoder jwtDecoder;
@@ -137,19 +133,13 @@ class AuthIntegrationTest {
 
     @Test
     void adminCanListAllUsers() {
-        String email = uniqueEmail();
-        User admin = new User();
-        admin.setEmail(email);
-        admin.setPasswordHash(passwordEncoder.encode("admin-password"));
-        admin.setRole(Role.ADMIN);
-        userRepository.save(admin);
-        String token = AuthTestSupport.login(anonymous, email, "admin-password");
+        String token = AuthTestSupport.adminLogin(anonymous);
 
         ResponseEntity<UserResponse[]> response = AuthTestSupport.withToken(restTemplateBuilder, port, token)
                 .getForEntity("/api/users", UserResponse[].class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).extracting(UserResponse::email).contains(email);
+        assertThat(response.getBody()).extracting(UserResponse::email).contains("admin@test.local");
     }
 
     private static String uniqueEmail() {

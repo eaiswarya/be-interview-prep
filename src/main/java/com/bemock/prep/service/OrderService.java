@@ -21,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class OrderService {
      * insert waits for the winner's commit, fails, and then reads the winner's order.
      */
     public PlacedOrder place(Long userId, String idempotencyKey, OrderRequest request) {
-        var existing = orderRepository.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
+        Optional<Order> existing = orderRepository.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
         if (existing.isPresent()) {
             return new PlacedOrder(OrderResponse.from(existing.get()), false);
         }

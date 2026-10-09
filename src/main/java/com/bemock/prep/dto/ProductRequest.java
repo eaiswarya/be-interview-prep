@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-/** Full replace of a product (PUT). */
 public record ProductRequest(
         @NotBlank @Size(max = 100) String name,
         @NotBlank @Size(max = 50) String category,

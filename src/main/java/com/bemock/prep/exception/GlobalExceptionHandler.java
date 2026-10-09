@@ -3,7 +3,6 @@ package com.bemock.prep.exception;
 import com.bemock.prep.dto.ApiErrorResponse;
 import com.bemock.prep.dto.ApiErrorResponse.FieldErrorResponse;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,16 +42,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return build(ex.getStatus(), ex.getMessage(), request, List.of());
     }
 
-    /** Violations raised by {@code @Validated} beans outside Spring MVC's built-in method validation. */
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(ConstraintViolationException ex,
-                                                                      WebRequest request) {
-        List<FieldErrorResponse> fieldErrors = ex.getConstraintViolations().stream()
-                .map(v -> new FieldErrorResponse(lastPathNode(v.getPropertyPath().toString()), v.getMessage()))
-                .toList();
-        return build(HttpStatus.BAD_REQUEST, "Validation failed", request, fieldErrors);
-    }
-
     /** A DB constraint rejected the change, e.g. deleting a product that orders still reference. */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrity(DataIntegrityViolationException ex, WebRequest request) {
@@ -89,7 +78,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                             HttpHeaders headers,
                                                                             HttpStatusCode status,
                                                                             WebRequest request) {
-        List<FieldErrorResponse> fieldErrors = ex.getAllValidationResults().stream()
+        List<FieldErrorResponse> fieldErrors = ex.getParameterValidationResults().stream()
                 .flatMap(result -> result instanceof ParameterErrors errors
                         ? errors.getFieldErrors().stream()
                                 .map(fe -> new FieldErrorResponse(fe.getField(), fe.getDefaultMessage()))
@@ -167,10 +156,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return type != null && type.isEnum()
                 ? "must be one of " + Arrays.toString(type.getEnumConstants())
                 : "has invalid value '%s'".formatted(ex.getValue());
-    }
-
-    private static String lastPathNode(String propertyPath) {
-        int dot = propertyPath.lastIndexOf('.');
-        return dot >= 0 ? propertyPath.substring(dot + 1) : propertyPath;
     }
 }

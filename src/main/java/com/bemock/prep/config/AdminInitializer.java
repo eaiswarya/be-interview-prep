@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Locale;
+
 /**
  * Registration only ever creates USERs, so the first ADMIN is created at startup
  * from ADMIN_EMAIL / ADMIN_PASSWORD when both are set and the account doesn't exist yet.
@@ -29,7 +31,7 @@ public class AdminInitializer implements ApplicationRunner {
         if (!StringUtils.hasText(adminProperties.email()) || !StringUtils.hasText(adminProperties.password())) {
             return;
         }
-        String email = adminProperties.email().trim().toLowerCase();
+        String email = adminProperties.email().trim().toLowerCase(Locale.ROOT);
         if (userRepository.existsByEmail(email)) {
             return;
         }
